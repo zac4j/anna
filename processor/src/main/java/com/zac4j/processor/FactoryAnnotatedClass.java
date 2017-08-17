@@ -19,6 +19,7 @@ public class FactoryAnnotatedClass {
 
   public FactoryAnnotatedClass(TypeElement classElement) {
     this.annotatedClassElement = classElement;
+    // Get this class all @Factory info.
     Factory annotation = classElement.getAnnotation(Factory.class);
     id = annotation.id();
 
@@ -34,6 +35,8 @@ public class FactoryAnnotatedClass {
       Class<?> clazz = annotation.type();
       qualifiedSuperClassName = clazz.getCanonicalName();
       simpleTypeName = clazz.getSimpleName();
+      // Thrown when an application attempts to access the Class
+      // object corresponding to TypeMirror.
     } catch (MirroredTypeException e) {
       DeclaredType classTypeMirror = (DeclaredType) e.getTypeMirror();
       TypeElement classTypeElement = (TypeElement) classTypeMirror.asElement();
