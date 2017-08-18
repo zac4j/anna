@@ -2,7 +2,9 @@ package com.zac4j.processor;
 
 import com.google.auto.service.AutoService;
 import com.zac4j.factory.Factory;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -28,6 +30,7 @@ import javax.tools.Diagnostic;
   private Elements elementUtils;
   private Filer filer;
   private Messager messager;
+  private Map<String, FactoryGroupedClasses> factoryClasses = new LinkedHashMap<>();
 
   @Override public synchronized void init(ProcessingEnvironment processingEnvironment) {
     super.init(processingEnvironment);
