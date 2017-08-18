@@ -2,6 +2,7 @@ package com.zac4j.processor;
 
 import com.google.auto.service.AutoService;
 import com.zac4j.factory.Factory;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -52,33 +53,48 @@ import javax.tools.Diagnostic;
 
   @Override
   public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
-    // Iterate over all @Factory annotated elements
-    for (Element annotatedElement : roundEnvironment.getElementsAnnotatedWith(Factory.class)) {
-      // Check if a class has been annotated with @Factory
-      if (annotatedElement.getKind() != ElementKind.CLASS) {
-        error(annotatedElement, "Only classes can be annotated with @%s",
-            Factory.class.getSimpleName());
-        return true; // Exit processing
-      }
+    try {
+      // Iterate over all @Factory annotated elements
+      for (Element annotatedElement : roundEnvironment.getElementsAnnotatedWith(Factory.class)) {
+        // Check if a class has been annotated with @Factory
+        if (annotatedElement.getKind() != ElementKind.CLASS) {
+          error(annotatedElement, "Only classes can be annotated with @%s",
+              Factory.class.getSimpleName());
+          return true; // Exit processing
+        }
 
-      // We can cast it, because we know that it of ElementKind.CLASS
-      TypeElement typeElement = (TypeElement) annotatedElement;
+        // We can cast it, because we know that it of ElementKind.CLASS
+        TypeElement typeElement = (TypeElement) annotatedElement;
 
-      try {
         FactoryAnnotatedClass annotatedClass =
             new FactoryAnnotatedClass(typeElement); // throws IllegalArgumentException
 
         if (!isValidClass(annotatedClass)) {
           return true; // Error message printed, exit processing
         }
-      } catch (IllegalArgumentException e) {
-        // @Factory.id() is empty
-        error(typeElement, e.getMessage());
-        return true;
+
+        // Everything is fine, try to add
+        FactoryGroupedClasses factoryClass =
+            factoryClasses.get(annotatedClass.getQualifiedFactoryGroupName());
+        if (factoryClass == null) {
+          String qualifiedGroupName = annotatedClass.getQualifiedFactoryGroupName();
+          factoryClass = new FactoryGroupedClasses(qualifiedGroupName);
+          factoryClasses.put(qualifiedGroupName, factoryClass);
+        }
+        factoryClass.add(annotatedClass);
       }
+
+      // Generate code
+      for (FactoryGroupedClasses factoryClass : factoryClasses.values()) {
+        factoryClass.generateCode(elementUtils, filer);
+      }
+    } catch (ProcessingException e) {
+      error(e.getElement(), e.getMessage());
+    } catch (IOException e) {
+      error(null, e.getMessage());
     }
 
-    return false;
+    return true;
   }
 
   private boolean isValidClass(FactoryAnnotatedClass item) {
