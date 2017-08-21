@@ -53,10 +53,9 @@ public class FactoryGroupedClasses {
     itemsMap.put(toInsert.getId(), toInsert);
   }
 
-  public void generateCode(Elements elementUtils, Filer filer) throws IOException {
+  void generateCode(Elements elementUtils, Filer filer) throws IOException {
     TypeElement superClassName = elementUtils.getTypeElement(qualifiedClassName);
     String factoryClassName = superClassName.getSimpleName() + SUFFIX;
-    String qualifiedFactoryClassName = qualifiedClassName + SUFFIX;
     PackageElement pkg = elementUtils.getPackageOf(superClassName);
     String packageName = pkg.isUnnamed() ? null : pkg.getQualifiedName().toString();
 

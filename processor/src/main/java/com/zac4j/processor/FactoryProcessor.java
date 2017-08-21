@@ -69,9 +69,7 @@ import javax.tools.Diagnostic;
         FactoryAnnotatedClass annotatedClass =
             new FactoryAnnotatedClass(typeElement); // throws IllegalArgumentException
 
-        if (!isValidClass(annotatedClass)) {
-          return true; // Error message printed, exit processing
-        }
+        checkValidClass(annotatedClass); // Error message printed, exit processing
 
         // Everything is fine, try to add
         FactoryGroupedClasses factoryClass =
@@ -88,6 +86,8 @@ import javax.tools.Diagnostic;
       for (FactoryGroupedClasses factoryClass : factoryClasses.values()) {
         factoryClass.generateCode(elementUtils, filer);
       }
+
+      factoryClasses.clear();
     } catch (ProcessingException e) {
       error(e.getElement(), e.getMessage());
     } catch (IOException e) {
@@ -97,21 +97,19 @@ import javax.tools.Diagnostic;
     return true;
   }
 
-  private boolean isValidClass(FactoryAnnotatedClass item) {
+  private void checkValidClass(FactoryAnnotatedClass item) {
     // Cast to TypeElement, has more type specific methods
     TypeElement classElement = item.getTypeElement();
 
     if (!classElement.getModifiers().contains(Modifier.PUBLIC)) {
       error(classElement, "The class %s is not public.",
           classElement.getQualifiedName().toString());
-      return false;
     }
 
     // Check if it's an abstract class
     if (classElement.getModifiers().contains(Modifier.ABSTRACT)) {
       error(classElement, "The class %s is abstract. You can't annotate abstract classes with @%",
           classElement.getQualifiedName().toString(), Factory.class.getSimpleName());
-      return false;
     }
 
     // Check inheritance: Class must be child class as specified in @Factory.type();
@@ -123,7 +121,6 @@ import javax.tools.Diagnostic;
         error(classElement, "The class %s annotated with @%s must implement the interface %s",
             classElement.getQualifiedName().toString(), Factory.class.getSimpleName(),
             item.getQualifiedFactoryGroupName());
-        return false;
       }
     } else {
       // Check subclassing
@@ -136,7 +133,6 @@ import javax.tools.Diagnostic;
           error(classElement, "The class %s annotated with @%s must inherit from %s",
               classElement.getQualifiedName().toString(), Factory.class.getSimpleName(),
               item.getQualifiedFactoryGroupName());
-          return false;
         }
 
         if (superClassType.toString().equals(item.getQualifiedFactoryGroupName())) {
@@ -156,7 +152,7 @@ import javax.tools.Diagnostic;
         if (constructorElement.getParameters().size() == 0 && constructorElement.getModifiers()
             .contains(Modifier.PUBLIC)) {
           // Found an empty constructor
-          return true;
+          return;
         }
       }
     }
@@ -164,7 +160,6 @@ import javax.tools.Diagnostic;
     // No empty constructor found
     error(classElement, "The class %s must provide an public empty default constructor",
         classElement.getQualifiedName().toString());
-    return false;
   }
 
   private void error(Element e, String msg, Object... args) {

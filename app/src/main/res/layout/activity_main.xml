@@ -4,13 +4,35 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.zac4j.anna.MainActivity"
     >
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      >
+    <EditText
+        android:id="@id/main_et_meal_input"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/input_hint"
+        />
+
+    <Button
+        android:id="@id/main_btn_order_meal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:text="@string/order"
+        />
+  </LinearLayout>
 
   <TextView
-      android:layout_width="wrap_content"
+      android:id="@id/main_tv_meal_price"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:text="Hello World!"
+      android:gravity="center_horizontal"
       />
 
 </LinearLayout>

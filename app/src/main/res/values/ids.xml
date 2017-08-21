@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <item name="main_et_meal_input" type="id"/>
+  <item name="main_btn_order_meal" type="id"/>
+  <item name="main_tv_meal_price" type="id"/>
+</resources>

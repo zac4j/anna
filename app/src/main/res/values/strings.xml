@@ -1,3 +1,5 @@
 <resources>
   <string name="app_name">Anna</string>
+  <string name="input_hint">Enter meal type</string>
+  <string name="order">Order</string>
 </resources>
